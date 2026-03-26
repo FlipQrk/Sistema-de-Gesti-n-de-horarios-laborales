@@ -42,15 +42,24 @@ Un aplicativo Spring Boot que permite:
 
 ## 📋 Requisitos Previos
 
-### Mínimos (para Desarrollo)
-- Java 21 JDK
-- Maven 3.8+
-- Git
+### Esenciales
+- **Java 21 JDK** - Descargar desde https://www.oracle.com/java/
+- **Maven 3.8+** - Instalar con: `sudo apt-get install maven` (Linux)
+- **Docker Desktop** - Descargar desde https://www.docker.com/products/docker-desktop
+- **Git** - Control de versiones
 
-### Para Producción
-- Java 21 JDK
-- PostgreSQL 12+
-- Maven 3.8+
+### Verificar Instalación
+```bash
+java -version
+mvn -v
+docker --version
+docker-compose --version
+git --version
+```
+
+### Para Producción (Sin Docker)
+- PostgreSQL 12+ instalado localmente
+- O usar cloud database (AWS RDS, Azure Database, etc.)
 
 ---
 
@@ -63,19 +72,15 @@ Un aplicativo Spring Boot que permite:
 git clone <url-repo>
 cd Manegement_System/mis
 
-# Compilar dependencias
-mvn clean install
+# Ejecutar setup (Docker + dependencias)
+bash setup.sh
 ```
 
-### 2️⃣ Ejecutar en Desarrollo
+### 2️⃣ Ejecutar la Aplicación
 
 ```bash
-# Opción A: Con Maven (incluye hot reload)
+# En una nueva terminal
 mvn spring-boot:run
-
-# Opción B: Compilar y ejecutar JAR
-mvn clean package -DskipTests
-java -jar target/mis-0.0.1-SNAPSHOT.jar
 ```
 
 ### 3️⃣ Acceder
@@ -83,7 +88,29 @@ java -jar target/mis-0.0.1-SNAPSHOT.jar
 ```
 🌐 API:        http://localhost:8080/api
 📚 Swagger:    http://localhost:8080/api/swagger-ui.html
-🗄️  H2 Console: http://localhost:8080/api/h2-console (User: sa, Pass: vacío)
+🐘 pgAdmin:    http://localhost:5050 (admin@schedulingdb.com / admin123)
+🗄️  PostgreSQL: localhost:5432 (postgres / postgres123)
+```
+
+### 4️⃣ Detener (cuando termines)
+
+```bash
+docker-compose down  # Los datos persisten
+```
+
+---
+
+## 📋 Método Alternativo (Sin Script)
+
+```bash
+# 1. Iniciar PostgreSQL en Docker
+docker-compose up -d
+
+# 2. Compilar dependencias
+mvn clean install
+
+# 3. Ejecutar aplicación
+mvn spring-boot:run
 ```
 
 ---

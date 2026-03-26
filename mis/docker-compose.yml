@@ -1,0 +1,114 @@
+version: '3.8'
+
+# ====================================================================
+# DOCKER COMPOSE - SISTEMA DE HORARIOS LABORALES
+# ====================================================================
+# Contiene:
+#   - PostgreSQL 15 (Base de datos principal)
+#   - pgAdmin 4 (Interfaz gráfica para administrar BD)
+#
+# Uso:
+#   docker-compose up -d          # Iniciar servicios en background
+#   docker-compose down           # Detener servicios
+#   docker-compose logs -f        # Ver logs en tiempo real
+#   docker-compose ps            # Ver estado de servicios
+# ====================================================================
+
+services:
+  # ====================================================================
+  # POSTGRESQL 15
+  # ====================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: scheduling_postgres
+    
+    # Puertos
+    ports:
+      - "5432:5432"  # Puerto por defecto PostgreSQL
+    
+    # Variables de entorno - Configuración de la BD
+    environment:
+      # Nombre de usuario root
+      POSTGRES_USER: postgres
+      # Contraseña del usuario root
+      POSTGRES_PASSWORD: postgres123
+      # Base de datos por defecto
+      POSTGRES_DB: schedulingdb
+      
+      # Configuración adicional
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    
+    # Volumen persistente - Los datos persisten incluso si se elimina el contenedor
+    volumes:
+      # Almacenar datos en carpeta local
+      - postgres_data:/var/lib/postgresql/data
+      # Script de inicialización (opcional)
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    
+    # Health check - Verifica que la BD está lista
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    # Red de Docker
+    networks:
+      - scheduling_network
+    
+    # Logs
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ====================================================================
+  # PGADMIN 4 (Interfaz gráfica para PostgreSQL)
+  # ====================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: scheduling_pgadmin
+    
+    # Puertos
+    ports:
+      - "5050:80"  # Acceder a http://localhost:5050
+    
+    # Variables de entorno
+    environment:
+      # Email para login en pgAdmin
+      PGADMIN_DEFAULT_EMAIL: admin@schedulingdb.com
+      # Contraseña para login
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      # Configuración de servidor
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    
+    # Volumen para configuración
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    
+    # Depender del servicio PostgreSQL
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    # Red
+    networks:
+      - scheduling_network
+
+# ====================================================================
+# VOLÚMENES PERSISTENTES
+# ====================================================================
+# Almacenan datos que persisten entre reinicios de contenedores
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# ====================================================================
+# REDES
+# ====================================================================
+# Permite comunicación entre contenedores
+networks:
+  scheduling_network:
+    driver: bridge

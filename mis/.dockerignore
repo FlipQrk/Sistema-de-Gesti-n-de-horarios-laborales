@@ -1,0 +1,41 @@
+# Ignorar archivos que no son necesarios en contenedores Docker
+
+# Maven
+target/
+*.jar
+*.zip
+*.tar.gz
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+.eclipse
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentación (opcional)
+*.md
+HELP.md
+README.md
+
+# Node (si hay frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Otros
+.mvn/
+mvnw
+mvnw.cmd
+*.class
